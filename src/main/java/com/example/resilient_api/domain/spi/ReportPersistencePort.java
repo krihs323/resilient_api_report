@@ -5,5 +5,4 @@ import reactor.core.publisher.Mono;
 
 public interface ReportPersistencePort {
     Mono<Void> save(Report report);
-    Mono<Boolean> saveBootcamps(Long idPerson, Report report, String messageId);
 }

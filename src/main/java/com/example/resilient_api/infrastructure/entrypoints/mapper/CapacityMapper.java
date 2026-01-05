@@ -1,6 +1,6 @@
 package com.example.resilient_api.infrastructure.entrypoints.mapper;
 
-import com.example.resilient_api.domain.model.CapacityTechnologies;
+import com.example.resilient_api.domain.model.Capacity;
 import com.example.resilient_api.infrastructure.entrypoints.dto.CapacityDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,11 +16,11 @@ public interface CapacityMapper {
     @Mapping( source = "name", target = "name")
     @Mapping( source = "description", target = "description")
     @Mapping( source = "capacityTechnologyList", target = "capacityTechnologyList")
-    CapacityDTO capacityTechnologiesToCapacityDTO(CapacityTechnologies capacityTechnologies);
+    CapacityDTO capacityTechnologiesToCapacityDTO(Capacity capacity);
 
     @Mapping( source = "idCapacity", target = "id")
     @Mapping( source = "name", target = "name")
     @Mapping( source = "description", target = "description")
     @Mapping( source = "capacityTechnologyList", target = "capacityTechnologyList")
-    CapacityTechnologies capacityTechnologiesDTOToCapacity(CapacityDTO capacityDTO);
+    Capacity capacityTechnologiesDTOToCapacity(CapacityDTO capacityDTO);
 }

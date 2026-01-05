@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
-
 @AllArgsConstructor
 @Slf4j
 public class ReportPersistenceAdapter implements ReportPersistencePort {
@@ -25,14 +24,24 @@ public class ReportPersistenceAdapter implements ReportPersistencePort {
     @Override
     public Mono<Void> save(Report report) {
 
-        Query query = new Query(Criteria.where("bootcampId").is(report.id()));
+        // Calculamos totales para métricas rápidas
+        int totalCapacities = (report.capacityList() != null) ? report.capacityList().size() : 0;
+        long totalTechnologies = (report.capacityList() != null)
+                ? report.capacityList().stream()
+                .flatMap(c -> c.capacityTechnologyList().stream())
+                .distinct() // Por si una tecnología se repite en varias capacidades
+                .count()
+                : 0;
 
+        Query query = new Query(Criteria.where("bootcampId").is(report.id()));
         Update update = new Update()
                 .set("name", report.name())
                 .set("description", report.description())
                 .set("launchDate", report.launchDate())
                 .set("durationWeeks", report.durationWeeks())
                 .set("capacity", report.capacityList())
+                .set("totalCapacities", totalCapacities)
+                .set("totalTechnologies", (int) totalTechnologies)
                 //.inc("enrolledPersonsCount", report.increment()) // Incrementa en 1
                 .setOnInsert("createdAt", LocalDateTime.now())
                 .set("updatedAt", LocalDateTime.now());
@@ -40,24 +49,6 @@ public class ReportPersistenceAdapter implements ReportPersistencePort {
         // upsert: si no existe lo crea, si existe lo actualiza
         return mongoTemplate.upsert(query, update, "bootcamp_metrics").then();
 
-    }
-
-
-    @Override
-    public Mono<Boolean> saveBootcamps(Long idPerson, Report report, String messageId) {
-//        List<PersonBootcampEntity> details = new ArrayList<>();
-//        for (PersonBootcamps req : report.personBootcampsList()) {
-//            PersonBootcampEntity detail = new PersonBootcampEntity();
-//            detail.setIdPerson(idPerson);
-//            detail.setIdBootcamp(req.idBootcamp());
-//            details.add(detail);
-//        }
-//        return personBootcampRepository
-//                .saveAll(details)
-//                .then(Mono.just(true))
-//                .onErrorReturn(false);
-//    }
-        return Mono.just(true);
     }
 
 }
