@@ -43,7 +43,6 @@ public class ReportPersistenceAdapter implements ReportPersistencePort {
                 .set("capacity", report.bootcampCapacityList())
                 .set("totalCapacities", totalCapacities)
                 .set("totalTechnologies", (int) totalTechnologies)
-                //.inc("enrolledPersonsCount", report.increment()) // Incrementa en 1
                 .setOnInsert("createdAt", LocalDateTime.now())
                 .set("updatedAt", LocalDateTime.now());
 
@@ -59,8 +58,8 @@ public class ReportPersistenceAdapter implements ReportPersistencePort {
 
         // 2. Operación: Agregar persona a la lista y actualizar fecha
         Update update = new Update()
-                .push("personas", person) // Agrega a la lista 'enrolledPersons'
-                .inc("totalPeople", 1)       // Incrementa el contador total
+                .push("personas", person)
+                .inc("totalPeople", 1)
                 .set("updatedAt", LocalDateTime.now());
 
         return mongoTemplate.updateFirst(query, update, "bootcamp_metrics").then();
