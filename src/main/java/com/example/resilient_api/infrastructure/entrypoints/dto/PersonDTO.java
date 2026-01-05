@@ -5,19 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder(toBuilder = true)
-public class ReportDTO {
+public class PersonDTO {
+
     private Long id;
     private String name;
-    private String description;
-    private LocalDate launchDate;
-    private Integer durationWeeks;
-    private List<CapacityDTO> bootcampCapacityList;
-
+    private String email;
+    private Integer age;
 }

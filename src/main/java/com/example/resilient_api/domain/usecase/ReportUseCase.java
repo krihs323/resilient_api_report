@@ -12,16 +12,21 @@ import java.util.*;
 public class ReportUseCase implements ReportServicePort {
 
     private final ReportPersistencePort reportPersistencePort;
-    private final BootcampGateway bootcampGateway;
 
     public ReportUseCase(ReportPersistencePort reportPersistencePort, BootcampGateway bootcampGateway) {
         this.reportPersistencePort = reportPersistencePort;
-        this.bootcampGateway = bootcampGateway;
     }
 
     @Override
     public Mono<Void> registerReport(Report report, String messageId) {
         return reportPersistencePort.save(report)
+                .doOnError(e -> log.error("Error en registro para messageId {}: {}", messageId, e.getMessage()));
+    }
+
+    @Override
+    public Mono<Void> updateReport(UpdatePersonReportRequest updatePersonReportRequest, String messageId) {
+
+      return reportPersistencePort.update(updatePersonReportRequest.idBootcamp(), updatePersonReportRequest.person(), messageId)
                 .doOnError(e -> log.error("Error en registro para messageId {}: {}", messageId, e.getMessage()));
     }
 

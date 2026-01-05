@@ -6,8 +6,10 @@ import com.example.resilient_api.domain.exceptions.BusinessException;
 import com.example.resilient_api.domain.exceptions.CustomException;
 import com.example.resilient_api.domain.exceptions.TechnicalException;
 import com.example.resilient_api.infrastructure.entrypoints.dto.ReportDTO;
+import com.example.resilient_api.infrastructure.entrypoints.dto.UpdatePersonReportRequestDTO;
 import com.example.resilient_api.infrastructure.entrypoints.mapper.CapacityMapper;
 import com.example.resilient_api.infrastructure.entrypoints.mapper.ReportMapper;
+import com.example.resilient_api.infrastructure.entrypoints.mapper.UpdatePersonReportRequestMapper;
 import com.example.resilient_api.infrastructure.entrypoints.util.APIResponse;
 import com.example.resilient_api.infrastructure.entrypoints.util.ErrorDTO;
 import com.example.resilient_api.infrastructure.validation.ObjectValidator;
@@ -39,6 +41,7 @@ public class ReportHandlerImpl {
     private final ReportMapper reportMapper;
     private final ObjectValidator objectValidator;
     private final CapacityMapper capacityMapper;
+    private final UpdatePersonReportRequestMapper updatePersonReportRequestMapper;
 
     @Operation(
             summary = "Registrar un nuevo reporte",
@@ -64,6 +67,72 @@ public class ReportHandlerImpl {
                                 .then(ServerResponse
                                         .status(HttpStatus.CREATED)
                                         .bodyValue(TechnicalMessage.REPORT_CREATED.getMessage()))
+                )
+                .contextWrite(Context.of(X_MESSAGE_ID, messageId))
+                .doOnError(ex -> log.error(REPORT_ERROR, ex))
+                .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
+                        HttpStatus.BAD_REQUEST,
+                        messageId,
+                        TechnicalMessage.INVALID_PARAMETERS,
+                        List.of(ErrorDTO.builder()
+                                .code(ex.getTechnicalMessage().getCode())
+                                .message(ex.getTechnicalMessage().getMessage())
+                                .param(ex.getTechnicalMessage().getParam())
+                                .build())))
+                .onErrorResume(TechnicalException.class, ex -> buildErrorResponse(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        messageId,
+                        TechnicalMessage.INTERNAL_ERROR,
+                        List.of(ErrorDTO.builder()
+                                .code(ex.getTechnicalMessage().getCode())
+                                .message(ex.getTechnicalMessage().getMessage())
+                                .param(ex.getTechnicalMessage().getParam())
+                                .build())))
+                .onErrorResume(CustomException.class, ex -> buildErrorResponse(
+                        HttpStatus.BAD_REQUEST,
+                        messageId,
+                        TechnicalMessage.INVALID_REQUEST,
+                        List.of(ErrorDTO.builder()
+                                .code(TechnicalMessage.INVALID_REQUEST.getCode())
+                                .message(ex.getMessage())
+                                .build())))
+                .onErrorResume(ex -> {
+                    log.error("Unexpected error occurred for messageId: {}", messageId, ex);
+                    return buildErrorResponse(
+                            HttpStatus.INTERNAL_SERVER_ERROR,
+                            messageId,
+                            TechnicalMessage.INTERNAL_ERROR,
+                            List.of(ErrorDTO.builder()
+                                    .code(TechnicalMessage.INTERNAL_ERROR.getCode())
+                                    .message(TechnicalMessage.INTERNAL_ERROR.getMessage())
+                                    .build()));
+                });
+    }
+
+    @Operation(
+            summary = "Actualizar un reporte de Bootcamp, agregando personas registradas",
+            description = "Actualiza un reporte",
+            requestBody = @RequestBody(
+                    description = "Información del reporta a actualizar",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ReportDTO.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Reporte creado exitosamente"),
+                    @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+            })
+    public Mono<ServerResponse> updateReport(ServerRequest request) {
+        String messageId = getMessageId(request);
+        return request.bodyToMono(UpdatePersonReportRequestDTO.class).doOnNext(objectValidator::validate)
+                .flatMap(report ->
+                        reportServicePort.updateReport(updatePersonReportRequestMapper.personDTOToPerson(report), messageId)
+                                .doOnSuccess(v -> log.info("Report created successfully with messageId: {}", messageId))
+                                .then(ServerResponse
+                                        .status(HttpStatus.CREATED)
+                                        .bodyValue(TechnicalMessage.REPORT_UPDATED.getMessage()))
                 )
                 .contextWrite(Context.of(X_MESSAGE_ID, messageId))
                 .doOnError(ex -> log.error(REPORT_ERROR, ex))

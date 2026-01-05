@@ -16,6 +16,7 @@ public enum TechnicalMessage {
     INVALID_MESSAGE_ID("404", "Invalid Message ID, please verify", "messageId"),
     UNSUPPORTED_OPERATION("501", "Method not supported, please try again", ""),
     REPORT_CREATED("201", "Report created successfully", ""),
+    REPORT_UPDATED("201", "Report updated successfully", ""),
     ADAPTER_RESPONSE_NOT_FOUND("404-0", "invalid email, please verify", ""),
     REPORT_ALREADY_EXISTS("400","Reporte ya está registrado." ,"" ),
     BOOTCAMPS_VALIDATION_DATE("400","Existen conflictos de fechas entre los bootcamps" ,"" ),

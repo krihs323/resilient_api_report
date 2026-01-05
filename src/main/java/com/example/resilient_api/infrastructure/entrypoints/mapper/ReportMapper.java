@@ -18,7 +18,7 @@ public interface ReportMapper {
     @Mapping(source = "description", target = "description")
     @Mapping(source = "launchDate", target = "launchDate")
     @Mapping(source = "durationWeeks", target = "durationWeeks")
-    @Mapping(source = "capacityList", target = "capacityList")
+    @Mapping(source = "bootcampCapacityList", target = "bootcampCapacityList")
     Report reportDTOToReport(ReportDTO reportDTO);
 
 }

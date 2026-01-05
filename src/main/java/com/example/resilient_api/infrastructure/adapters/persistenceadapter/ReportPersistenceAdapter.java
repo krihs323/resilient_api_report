@@ -1,5 +1,6 @@
 package com.example.resilient_api.infrastructure.adapters.persistenceadapter;
 
+import com.example.resilient_api.domain.model.Person;
 import com.example.resilient_api.domain.model.Report;
 import com.example.resilient_api.domain.spi.ReportPersistencePort;
 import com.example.resilient_api.infrastructure.adapters.persistenceadapter.mapper.ReportEntityMapper;
@@ -25,9 +26,9 @@ public class ReportPersistenceAdapter implements ReportPersistencePort {
     public Mono<Void> save(Report report) {
 
         // Calculamos totales para métricas rápidas
-        int totalCapacities = (report.capacityList() != null) ? report.capacityList().size() : 0;
-        long totalTechnologies = (report.capacityList() != null)
-                ? report.capacityList().stream()
+        int totalCapacities = (report.bootcampCapacityList() != null) ? report.bootcampCapacityList().size() : 0;
+        long totalTechnologies = (report.bootcampCapacityList() != null)
+                ? report.bootcampCapacityList().stream()
                 .flatMap(c -> c.capacityTechnologyList().stream())
                 .distinct() // Por si una tecnología se repite en varias capacidades
                 .count()
@@ -39,7 +40,7 @@ public class ReportPersistenceAdapter implements ReportPersistencePort {
                 .set("description", report.description())
                 .set("launchDate", report.launchDate())
                 .set("durationWeeks", report.durationWeeks())
-                .set("capacity", report.capacityList())
+                .set("capacity", report.bootcampCapacityList())
                 .set("totalCapacities", totalCapacities)
                 .set("totalTechnologies", (int) totalTechnologies)
                 //.inc("enrolledPersonsCount", report.increment()) // Incrementa en 1
@@ -49,6 +50,20 @@ public class ReportPersistenceAdapter implements ReportPersistencePort {
         // upsert: si no existe lo crea, si existe lo actualiza
         return mongoTemplate.upsert(query, update, "bootcamp_metrics").then();
 
+    }
+
+    @Override
+    public Mono<Void> update(Long idBootcamp, Person person, String messageId) {
+        // 1. Criterio de búsqueda por el ID del bootcamp
+        Query query = new Query(Criteria.where("bootcampId").is(idBootcamp));
+
+        // 2. Operación: Agregar persona a la lista y actualizar fecha
+        Update update = new Update()
+                .push("personas", person) // Agrega a la lista 'enrolledPersons'
+                .inc("totalPeople", 1)       // Incrementa el contador total
+                .set("updatedAt", LocalDateTime.now());
+
+        return mongoTemplate.updateFirst(query, update, "bootcamp_metrics").then();
     }
 
 }

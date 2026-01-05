@@ -18,6 +18,9 @@ public class RouterRest {
                 .POST("/report",
                         personHandler::createReport,
                         ops -> ops.beanClass(ReportHandlerImpl.class).beanMethod("createReport"))
+                .PUT("/report",
+                        personHandler::updateReport,
+                        ops -> ops.beanClass(ReportHandlerImpl.class).beanMethod("updateReport"))
                 .build();
     }
 }
