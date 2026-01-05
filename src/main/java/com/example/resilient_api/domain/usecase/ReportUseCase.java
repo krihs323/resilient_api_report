@@ -1,7 +1,6 @@
 package com.example.resilient_api.domain.usecase;
 
 import com.example.resilient_api.domain.model.*;
-import com.example.resilient_api.domain.spi.BootcampGateway;
 import com.example.resilient_api.domain.spi.ReportPersistencePort;
 import com.example.resilient_api.domain.api.ReportServicePort;
 import lombok.extern.slf4j.Slf4j;
