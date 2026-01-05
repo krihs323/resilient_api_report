@@ -5,6 +5,7 @@ import com.example.resilient_api.domain.spi.BootcampGateway;
 import com.example.resilient_api.domain.spi.ReportPersistencePort;
 import com.example.resilient_api.domain.api.ReportServicePort;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.util.*;
 
@@ -13,7 +14,7 @@ public class ReportUseCase implements ReportServicePort {
 
     private final ReportPersistencePort reportPersistencePort;
 
-    public ReportUseCase(ReportPersistencePort reportPersistencePort, BootcampGateway bootcampGateway) {
+    public ReportUseCase(ReportPersistencePort reportPersistencePort) {
         this.reportPersistencePort = reportPersistencePort;
     }
 
@@ -28,6 +29,12 @@ public class ReportUseCase implements ReportServicePort {
 
       return reportPersistencePort.update(updatePersonReportRequest.idBootcamp(), updatePersonReportRequest.person(), messageId)
                 .doOnError(e -> log.error("Error en registro para messageId {}: {}", messageId, e.getMessage()));
+    }
+
+    @Override
+    public Flux<BootcampReport> listTopBootcamps(String messageId) {
+        return reportPersistencePort.listTopBootcamps(messageId)
+                .switchIfEmpty(Flux.empty());
     }
 
 }

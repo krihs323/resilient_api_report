@@ -1,5 +1,6 @@
 package com.example.resilient_api.infrastructure.adapters.persistenceadapter;
 
+import com.example.resilient_api.domain.model.BootcampReport;
 import com.example.resilient_api.domain.model.Person;
 import com.example.resilient_api.domain.model.Report;
 import com.example.resilient_api.domain.spi.ReportPersistencePort;
@@ -7,10 +8,12 @@ import com.example.resilient_api.infrastructure.adapters.persistenceadapter.mapp
 import com.example.resilient_api.infrastructure.adapters.persistenceadapter.repository.ReportRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -63,6 +66,15 @@ public class ReportPersistenceAdapter implements ReportPersistencePort {
                 .set("updatedAt", LocalDateTime.now());
 
         return mongoTemplate.updateFirst(query, update, "bootcamp_metrics").then();
+    }
+
+    @Override
+    public Flux<BootcampReport> listTopBootcamps(String messageId) {
+        Query query = new Query()
+                .with(Sort.by(Sort.Direction.DESC, "totalPeople"));
+        // Retornamos un Flux para manejar múltiples registros de forma reactiva
+        return mongoTemplate.find(query, BootcampReport.class, "bootcamp_metrics")
+                .doOnComplete(() -> log.info("Listado de bootcamps más exitoso generado con éxito"));
     }
 
 }

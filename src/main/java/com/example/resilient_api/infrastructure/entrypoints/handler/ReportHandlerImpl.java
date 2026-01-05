@@ -5,15 +5,19 @@ import com.example.resilient_api.domain.enums.TechnicalMessage;
 import com.example.resilient_api.domain.exceptions.BusinessException;
 import com.example.resilient_api.domain.exceptions.CustomException;
 import com.example.resilient_api.domain.exceptions.TechnicalException;
+import com.example.resilient_api.infrastructure.entrypoints.dto.BootcampReportDTO;
+import com.example.resilient_api.infrastructure.entrypoints.dto.CapacityDTO;
 import com.example.resilient_api.infrastructure.entrypoints.dto.ReportDTO;
 import com.example.resilient_api.infrastructure.entrypoints.dto.UpdatePersonReportRequestDTO;
-import com.example.resilient_api.infrastructure.entrypoints.mapper.CapacityMapper;
+import com.example.resilient_api.infrastructure.entrypoints.mapper.BootcampReportMapper;
 import com.example.resilient_api.infrastructure.entrypoints.mapper.ReportMapper;
 import com.example.resilient_api.infrastructure.entrypoints.mapper.UpdatePersonReportRequestMapper;
 import com.example.resilient_api.infrastructure.entrypoints.util.APIResponse;
 import com.example.resilient_api.infrastructure.entrypoints.util.ErrorDTO;
 import com.example.resilient_api.infrastructure.validation.ObjectValidator;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -21,9 +25,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -40,8 +46,9 @@ public class ReportHandlerImpl {
     private final ReportServicePort reportServicePort;
     private final ReportMapper reportMapper;
     private final ObjectValidator objectValidator;
-    private final CapacityMapper capacityMapper;
     private final UpdatePersonReportRequestMapper updatePersonReportRequestMapper;
+    private final BootcampReportMapper bootcampReportMapper;
+
 
     @Operation(
             summary = "Registrar un nuevo reporte",
@@ -174,6 +181,15 @@ public class ReportHandlerImpl {
                                     .build()));
                 });
     }
+
+    @Operation(parameters = {})
+    public Mono<ServerResponse> listTopBootcamps(ServerRequest request) {
+        String messageId = getMessageId(request);
+        Flux<BootcampReportDTO> resultMono = reportServicePort.listTopBootcamps(messageId).map(bootcampReportMapper::bootcampReportToBootcampReportDTO);
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(resultMono, BootcampReportDTO.class);
+
+    }
+
 
     private Mono<ServerResponse> buildErrorResponse(HttpStatus httpStatus, String identifier, TechnicalMessage error,
                                                     List<ErrorDTO> errors) {

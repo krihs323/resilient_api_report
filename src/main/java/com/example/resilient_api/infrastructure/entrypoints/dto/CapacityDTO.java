@@ -1,7 +1,5 @@
 package com.example.resilient_api.infrastructure.entrypoints.dto;
 
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

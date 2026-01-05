@@ -21,6 +21,10 @@ public class RouterRest {
                 .PUT("/report",
                         personHandler::updateReport,
                         ops -> ops.beanClass(ReportHandlerImpl.class).beanMethod("updateReport"))
+                .GET("/report/list-top-bootcamps/",
+                        personHandler::listTopBootcamps,
+                        ops -> ops.beanClass(ReportHandlerImpl.class).beanMethod("listBootcamps")
+                )
                 .build();
     }
 }

@@ -1,6 +1,5 @@
 package com.example.resilient_api.application.config;
 
-import com.example.resilient_api.domain.spi.BootcampGateway;
 import com.example.resilient_api.domain.spi.ReportPersistencePort;
 import com.example.resilient_api.domain.usecase.ReportUseCase;
 import com.example.resilient_api.domain.api.ReportServicePort;
@@ -25,7 +24,7 @@ public class UseCasesConfig {
         }
 
         @Bean
-        public ReportServicePort personServicePort(ReportPersistencePort reportPersistencePort, BootcampGateway bootcampGateway){
-                return new ReportUseCase(reportPersistencePort, bootcampGateway);
+        public ReportServicePort personServicePort(ReportPersistencePort reportPersistencePort){
+                return new ReportUseCase(reportPersistencePort);
         }
 }
