@@ -6,7 +6,6 @@ import com.example.resilient_api.domain.exceptions.BusinessException;
 import com.example.resilient_api.domain.exceptions.CustomException;
 import com.example.resilient_api.domain.exceptions.TechnicalException;
 import com.example.resilient_api.infrastructure.entrypoints.dto.BootcampReportDTO;
-import com.example.resilient_api.infrastructure.entrypoints.dto.CapacityDTO;
 import com.example.resilient_api.infrastructure.entrypoints.dto.ReportDTO;
 import com.example.resilient_api.infrastructure.entrypoints.dto.UpdatePersonReportRequestDTO;
 import com.example.resilient_api.infrastructure.entrypoints.mapper.BootcampReportMapper;
@@ -16,8 +15,6 @@ import com.example.resilient_api.infrastructure.entrypoints.util.APIResponse;
 import com.example.resilient_api.infrastructure.entrypoints.util.ErrorDTO;
 import com.example.resilient_api.infrastructure.validation.ObjectValidator;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -67,7 +64,7 @@ public class ReportHandlerImpl {
             })
     public Mono<ServerResponse> createReport(ServerRequest request) {
         String messageId = getMessageId(request);
-        return request.bodyToMono(ReportDTO.class).doOnNext(objectValidator::validate)
+        return request.bodyToMono(ReportDTO.class).flatMap(objectValidator::validate)
                 .flatMap(report ->
                         reportServicePort.registerReport(reportMapper.reportDTOToReport(report), messageId)
                                 .doOnSuccess(v -> log.info("Report created successfully with messageId: {}", messageId))
@@ -133,7 +130,7 @@ public class ReportHandlerImpl {
             })
     public Mono<ServerResponse> updateReport(ServerRequest request) {
         String messageId = getMessageId(request);
-        return request.bodyToMono(UpdatePersonReportRequestDTO.class).doOnNext(objectValidator::validate)
+        return request.bodyToMono(UpdatePersonReportRequestDTO.class).flatMap(objectValidator::validate)
                 .flatMap(report ->
                         reportServicePort.updateReport(updatePersonReportRequestMapper.personDTOToPerson(report), messageId)
                                 .doOnSuccess(v -> log.info("Report created successfully with messageId: {}", messageId))
