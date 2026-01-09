@@ -41,10 +41,18 @@ jacocoTestReport {
                     "**/application/**",
                     "**/domain/api/**",
                     "**/domain/spi/**",
+                    "**/domain/enums/**",
+                    "**/domain/model/**",
+                    "**/domain/constants/**",
                     "**/infrastructure/configuration/**",
                     "**/infrastructure/adapters/**",
                     "**/infrastructure/documentation/**",
                     "**/infrastructure/entrypoints/mapper/**",
+                    "**/infrastructure/entrypoints/handler/**",
+                    "**/infrastructure/entrypoints/RouterRest**",
+                    "**/infrastructure/entrypoints/util/**",
+                    "**/infrastructure/entrypoints/dto/**",
+                    "**/infrastructure/validation/**",
                     "**/infrastructure/util/mapper/**",
                     "**/exceptions/**",
             ])
@@ -54,7 +62,6 @@ jacocoTestReport {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	//implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -65,7 +72,6 @@ dependencies {
 	implementation 'io.github.resilience4j:resilience4j-retry'
 	implementation 'io.github.resilience4j:resilience4j-bulkhead'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
-    //runtimeOnly 'io.asyncer:r2dbc-mysql'
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
@@ -74,7 +80,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
 }
 
 dependencyManagement {
